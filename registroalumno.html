@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Alumnos</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background:#f4f4f4;
+    margin:20px;
+}
+
+h1{
+    text-align:center;
+    color:#1565ff;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns: repeat(3,1fr);
+    gap:20px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+
+.numero{
+    font-size:40px;
+    font-weight:bold;
+}
+
+.tabs{
+    display:flex;
+    margin-top:20px;
+}
+
+.tab{
+    flex:1;
+    padding:15px;
+    text-align:center;
+    background:white;
+    border:1px solid #ddd;
+    cursor:pointer;
+}
+
+.tab.active{
+    background:#1565ff;
+    color:white;
+}
+
+.contenido{
+    display:none;
+    background:white;
+    padding:20px;
+    border:1px solid #ddd;
+}
+
+.contenido.active{
+    display:block;
+}
+
+.fila{
+    display:grid;
+    grid-template-columns: repeat(3,1fr);
+    gap:15px;
+    margin-bottom:15px;
+}
+
+input, select{
+    width:100%;
+    padding:10px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:green;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#1565ff;
+    color:white;
+    padding:10px;
+}
+
+td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+}
+
+</style>
+
+</head>
+<body>
+   <h1>Registro de Alumnos en un Curso</h1>
+
+<div class="cards">
+
+    <div class="card">
+        <h3>Total de alumnos</h3>
+        <div class="numero" id="total">0</div>
+    </div>
+
+    <div class="card">
+        <h3>Mujeres</h3>
+        <div class="numero" id="mujeres">0</div>
+    </div>
+
+    <div class="card">
+        <h3>Hombres</h3>
+        <div class="numero" id="hombres">0</div>
+    </div>
+
+</div>
+
+<!-- TABS -->
+
+<div class="tabs">
+    <div class="tab active" onclick="mostrarTab('registro')">
+        Registro de alumno
+    </div>
+
+    <div class="tab" onclick="mostrarTab('alumnos')">
+        Alumnos registrados
+    </div>
+
+    <div class="tab" onclick="mostrarTab('jornadas')">
+        Cursos por jornada
+    </div>
+</div>
+
+<!-- REGISTRO -->
+
+<div id="registro" class="contenido active">
+
+    <div class="fila">
+
+        <div>
+            <label>Nombre</label>
+            <input type="text" id="nombre">
+        </div>
+
+        <div>
+            <label>Cédula</label>
+            <input type="text" id="cedula">
+        </div>
+
+        <div>
+            <label>Género</label>
+            <select id="genero">
+                <option value="">Seleccione</option>
+                <option>Mujer</option>
+                <option>Hombre</option>
+            </select>
+        </div>
+
+    </div>
+
+    <div class="fila">
+
+        <div>
+            <label>Jornada</label>
+            <select id="jornada">
+                <option value="">Seleccione</option>
+                <option>Matutina</option>
+                <option>Vespertina</option>
+                <option>Nocturna</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Correo</label>
+            <input type="email" id="correo">
+        </div>
+
+        <div style="display:flex; align-items:end;">
+            <button onclick="registrarAlumno()">
+                Registrar alumno
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ALUMNOS -->
+
+<div id="alumnos" class="contenido">
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Género</th>
+                <th>Jornada</th>
+                <th>Correo</th>
+            </tr>
+        </thead>
+
+        <tbody id="tablaAlumnos"></tbody>
+
+    </table>
+
+</div>
+
+<!-- JORNADAS -->
+
+<div id="jornadas" class="contenido">
+
+    <h2>Alumnos por jornada</h2>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Jornada</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+
+        <tbody id="tablaJornadas">
+            <tr>
+                <td>Matutina</td>
+                <td id="matutina">0</td>
+            </tr>
+
+            <tr>
+                <td>Vespertina</td>
+                <td id="vespertina">0</td>
+            </tr>
+
+            <tr>
+                <td>Nocturna</td>
+                <td id="nocturna">0</td>
+            </tr>
+        </tbody>
+
+    </table>
+
+</div>
+
+<script>
+
+let alumnos = [];
+
+function mostrarTab(id){
+
+    let contenidos = document.querySelectorAll('.contenido');
+    contenidos.forEach(c => c.classList.remove('active'));
+
+    document.getElementById(id).classList.add('active');
+
+    let tabs = document.querySelectorAll('.tab');
+    tabs.forEach(t => t.classList.remove('active'));
+
+    event.target.classList.add('active');
+}
+
+function registrarAlumno(){
+
+    let nombre = document.getElementById("nombre").value;
+    let cedula = document.getElementById("cedula").value;
+    let genero = document.getElementById("genero").value;
+    let jornada = document.getElementById("jornada").value;
+    let correo = document.getElementById("correo").value;
+
+    if(nombre=="" || cedula=="" || genero=="" || jornada=="" || correo==""){
+        alert("Complete todos los campos");
+        return;
+    }
+
+    alumnos.push({
+        nombre,
+        cedula,
+        genero,
+        jornada,
+        correo
+    });
+
+    actualizarTabla();
+    actualizarContadores();
+    actualizarJornadas();
+
+    limpiarFormulario();
+
+    alert("Alumno registrado correctamente");
+}
+
+function actualizarTabla(){
+
+    let tabla = document.getElementById("tablaAlumnos");
+
+    tabla.innerHTML = "";
+
+    alumnos.forEach((a,index)=>{
+
+        tabla.innerHTML += `
+            <tr>
+                <td>${index+1}</td>
+                <td>${a.nombre}</td>
+                <td>${a.cedula}</td>
+                <td>${a.genero}</td>
+                <td>${a.jornada}</td>
+                <td>${a.correo}</td>
+            </tr>
+        `;
+    });
+}
+
+function actualizarContadores(){
+
+    document.getElementById("total").innerText = alumnos.length;
+
+    let mujeres = alumnos.filter(a=>a.genero=="Mujer").length;
+    let hombres = alumnos.filter(a=>a.genero=="Hombre").length;
+
+    document.getElementById("mujeres").innerText = mujeres;
+    document.getElementById("hombres").innerText = hombres;
+}
+
+function actualizarJornadas(){
+
+    let matutina = alumnos.filter(a=>a.jornada=="Matutina").length;
+    let vespertina = alumnos.filter(a=>a.jornada=="Vespertina").length;
+    let nocturna = alumnos.filter(a=>a.jornada=="Nocturna").length;
+
+    document.getElementById("matutina").innerText = matutina;
+    document.getElementById("vespertina").innerText = vespertina;
+    document.getElementById("nocturna").innerText = nocturna;
+}
+
+function limpiarFormulario(){
+
+    document.getElementById("nombre").value="";
+    document.getElementById("cedula").value="";
+    document.getElementById("genero").value="";
+    document.getElementById("jornada").value="";
+    document.getElementById("correo").value="";
+}
+
+</script>
+</body>
+</html>
